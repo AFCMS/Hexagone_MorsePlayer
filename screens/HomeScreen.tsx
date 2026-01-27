@@ -11,6 +11,7 @@ import {
   playbackIsPlayingAtom,
   playbackMessageAtom,
   playbackMessageMorseAtom,
+  playbackProgressAtom,
 } from "../atoms/app";
 
 export function HomeScreen() {
@@ -21,6 +22,7 @@ export function HomeScreen() {
   const playbackIsPlaying = useAtomValue(playbackIsPlayingAtom);
   const messageText = useAtomValue(playbackMessageAtom);
   const messageTextMorse = useAtomValue(playbackMessageMorseAtom);
+  const playbackProgress = useAtomValue(playbackProgressAtom);
   const setPlaybackMessage = useSetAtom(playbackMessageAtom);
   const randomWordState = useRandomWord(setPlaybackMessage);
 
@@ -29,6 +31,18 @@ export function HomeScreen() {
       <Button screen="Config">Config</Button>
       <Text>{messageText}</Text>
       <Text>{messageTextMorse}</Text>
+      {playbackIsPlaying ? (
+        <View style={styles.progressContainer}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${Math.round(playbackProgress * 100)}%`,
+              },
+            ]}
+          />
+        </View>
+      ) : null}
       <Button
         disabled={!playbackIsPlaying}
         onPress={() => {
@@ -64,6 +78,18 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     marginTop: 10,
+  },
+  progressContainer: {
+    width: "90%",
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#e0e0e0",
+    overflow: "hidden",
+    marginVertical: 12,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#4caf50",
   },
   errorText: {
     color: "#c62828",

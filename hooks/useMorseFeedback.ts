@@ -5,6 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import {
   hasCameraPermission,
   playbackMessageAtom,
+  playbackProgressAtom,
   rearCameraTorchOnAtom,
 } from "../atoms/app";
 import {
@@ -25,10 +26,14 @@ export function useMorseFeedback() {
   const ditTimeMs = useAtomValue(feedbackDitTimeMsAtom);
   const hasPermission = useAtomValue(hasCameraPermission);
   const setPlaybackMessage = useSetAtom(playbackMessageAtom);
+  const setPlaybackProgress = useSetAtom(playbackProgressAtom);
   const setTorchOn = useSetAtom(rearCameraTorchOnAtom);
 
   const timeoutsRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const stopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const isPlayingRef = useRef(false);
 
   const clearTimers = () => {
@@ -37,6 +42,10 @@ export function useMorseFeedback() {
     if (stopTimeoutRef.current) {
       clearTimeout(stopTimeoutRef.current);
       stopTimeoutRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
     }
   };
 
@@ -48,11 +57,12 @@ export function useMorseFeedback() {
         setTorchOn(false);
       }
       isPlayingRef.current = false;
+      setPlaybackProgress(0);
       if (clearMessage) {
         setPlaybackMessage(null);
       }
     },
-    [setPlaybackMessage, setTorchOn],
+    [setPlaybackMessage, setPlaybackProgress, setTorchOn],
   );
 
   const startPlayback = useCallback(
@@ -72,6 +82,19 @@ export function useMorseFeedback() {
       if (vibrationEnabled) {
         Vibration.vibrate(pattern);
       }
+
+      // Update transmission progress based on elapsed time.
+      const startTime = Date.now();
+      setPlaybackProgress(0);
+      progressIntervalRef.current = setInterval(() => {
+        const elapsedMs = Date.now() - startTime;
+        const progress = Math.min(1, elapsedMs / durationMs);
+        setPlaybackProgress(progress);
+        if (progress >= 1 && progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
+      }, 100);
 
       let elapsed = 0;
       for (let i = 0; i < pattern.length; i++) {
@@ -103,7 +126,14 @@ export function useMorseFeedback() {
         stopPlayback(true);
       }, durationMs + 50);
     },
-    [ditTimeMs, flashEnabled, setTorchOn, stopPlayback, vibrationEnabled],
+    [
+      ditTimeMs,
+      flashEnabled,
+      setPlaybackProgress,
+      setTorchOn,
+      stopPlayback,
+      vibrationEnabled,
+    ],
   );
 
   useEffect(() => {
