@@ -54,9 +54,7 @@ export function useMorseFeedback() {
     (clearMessage: boolean) => {
       clearTimers();
       Vibration.cancel();
-      if (flashEnabled) {
-        setTorchOn(false);
-      }
+      setTorchOn(false);
       isPlayingRef.current = false;
       setPlaybackProgress(0);
       if (clearMessage) {
