@@ -1,38 +1,47 @@
 {
-  "expo": {
-    "name": "Morse Player",
-    "slug": "morse_player",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "android": {
-      "package": "dev.afcms.MorsePlayer",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "ios": {
-      "bundleIdentifier": "dev.afcms.MorsePlayer"
-    },
-    "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+    "expo": {
+        "name": "Morse Player",
+        "slug": "morse_player",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "newArchEnabled": true,
+        "splash": {
+            "image": "./assets/splash-icon.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "android": {
+            "package": "dev.afcms.MorsePlayer",
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "edgeToEdgeEnabled": true,
+            "permissions": [
+                "android.permission.CAMERA",
+                "android.permission.RECORD_AUDIO"
+            ]
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "ios": {
+            "bundleIdentifier": "dev.afcms.MorsePlayer"
+        },
+        "plugins": [
+            [
+                "expo-camera",
+                {
+                    "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+                }
+            ]
+        ],
+        "extra": {
+            "eas": {
+                "projectId": "c37b1eb0-7cb0-41f6-81b8-8332da329dd7"
+            }
         }
-      ]
-    ]
-  }
+    }
 }

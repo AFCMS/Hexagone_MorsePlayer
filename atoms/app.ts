@@ -2,7 +2,7 @@ import { atom } from "jotai";
 import { atomWithReset } from "jotai/utils";
 
 import { textToMorse } from "../utils/morse_utils";
-import type { FirebaseMessage } from "../backend/fire";
+import type { FirebaseMessage, FirebaseHistory } from "../backend/fire";
 
 export const hasCameraPermission = atom<boolean>(false);
 
@@ -46,3 +46,8 @@ export const selectedFirebaseMessageAtom = atom<FirebaseMessage | null>(
     return messages.find((m) => m.id === selectedId) ?? null;
   },
 );
+
+/**
+ * Stores the list of history entries fetched from Firebase
+ */
+export const firebaseHistoryAtom = atom<FirebaseHistory[]>([]);

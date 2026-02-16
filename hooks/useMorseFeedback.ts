@@ -13,6 +13,7 @@ import {
   feedbackBackendVibrationAtom,
   feedbackDitTimeMsAtom,
 } from "../atoms/settings";
+import { addHistory } from "../backend/fire";
 import { buildMorseVibrationPattern } from "../utils/morse_vibration";
 
 /**
@@ -74,6 +75,11 @@ export function useMorseFeedback() {
       if (pattern.length <= 1 || durationMs <= 0) return;
 
       isPlayingRef.current = true;
+
+      // Store the played text in history (fire-and-forget)
+      addHistory(text).catch(() => {
+        // Silently ignore history save errors to not disrupt playback
+      });
 
       clearTimers();
       Vibration.cancel();

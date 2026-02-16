@@ -20,7 +20,10 @@ import {
   updateDoc,
   deleteDoc,
   where,
+  serverTimestamp,
+  Timestamp,
   Unsubscribe,
+  writeBatch,
 } from "firebase/firestore";
 
 import { firebaseConfig } from "./config";
@@ -38,6 +41,16 @@ export interface FirebaseMessage {
   readonly uid: string;
   readonly name: string;
   readonly message: string;
+}
+
+/**
+ * Firebase history document interface
+ */
+export interface FirebaseHistory {
+  readonly id: string;
+  readonly uid: string;
+  readonly text: string;
+  readonly timestamp: Timestamp;
 }
 
 /**
@@ -226,4 +239,89 @@ export async function deleteMessage(messageId: string): Promise<void> {
   const ref = doc(db, "messages", messageId);
 
   await deleteDoc(ref);
+}
+
+// ---- History CRUD ----
+
+/**
+ * Add a played text to the user's history
+ * @param text The text that was played
+ */
+export async function addHistory(text: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  await addDoc(collection(db, "history"), {
+    uid: user.uid,
+    text,
+    timestamp: serverTimestamp(),
+  });
+}
+
+/**
+ * Listen to current user's history in real-time, ordered by most recent first
+ * @param callback Function called with updated history array
+ * @returns Unsubscribe function
+ */
+export function listenToMyHistory(
+  callback: (history: FirebaseHistory[]) => void,
+): Unsubscribe {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const q = query(
+    collection(db, "history"),
+    where("uid", "==", user.uid),
+    orderBy("timestamp", "desc"),
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const history: FirebaseHistory[] = snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<FirebaseHistory, "id">),
+    }));
+    callback(history);
+  });
+}
+
+/**
+ * Delete a single history entry from Firestore
+ * @param historyId The ID of the history entry to delete
+ */
+export async function deleteHistoryEntry(historyId: string): Promise<void> {
+  const ref = doc(db, "history", historyId);
+  await deleteDoc(ref);
+}
+
+/**
+ * Delete all history entries for the current user
+ */
+export async function deleteAllHistory(): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not authenticated");
+
+  const q = query(collection(db, "history"), where("uid", "==", user.uid));
+
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onSnapshot(
+      q,
+      async (snapshot) => {
+        unsubscribe();
+        const batch = writeBatch(db);
+        snapshot.docs.forEach((docSnap) => {
+          batch.delete(docSnap.ref);
+        });
+        try {
+          await batch.commit();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      },
+      (error) => {
+        unsubscribe();
+        reject(error);
+      },
+    );
+  });
 }

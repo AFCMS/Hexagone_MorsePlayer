@@ -76,11 +76,24 @@ export function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.headerButtons}>
-        <Button screen="Config">Config</Button>
-        <Button screen="SavedMessages">Saved Messages</Button>
-        <Button onPress={handleLogout} color="#cc0000">
-          Logout
-        </Button>
+        <View style={styles.headerRow}>
+          <View style={styles.headerButton}>
+            <Button screen="Config">Config</Button>
+          </View>
+          <View style={styles.headerButton}>
+            <Button onPress={handleLogout} color="#cc0000">
+              Logout
+            </Button>
+          </View>
+        </View>
+        <View style={styles.headerRow}>
+          <View style={styles.headerButton}>
+            <Button screen="SavedMessages">Saved</Button>
+          </View>
+          <View style={styles.headerButton}>
+            <Button screen="History">History</Button>
+          </View>
+        </View>
       </View>
 
       {/* User email display */}
@@ -234,9 +247,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   headerButtons: {
-    flexDirection: "row",
+    width: "100%",
+    paddingHorizontal: 12,
     gap: 8,
     marginBottom: 12,
+  },
+  headerRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  headerButton: {
+    flex: 1,
   },
   userEmail: {
     fontSize: 12,

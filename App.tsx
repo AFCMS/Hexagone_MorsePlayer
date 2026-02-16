@@ -11,6 +11,7 @@ import { useCameraFlash } from "./hooks/useCameraFlash";
 import { useMorseFeedback } from "./hooks/useMorseFeedback";
 
 import { ConfigScreen } from "./screens/ConfigScreen";
+import { HistoryScreen } from "./screens/HistoryScreen";
 import { HomeScreen } from "./screens/HomeScreen";
 import { LoginScreen } from "./screens/LoginScreen";
 import { SavedMessagesScreen } from "./screens/SavedMessagesScreen";
@@ -78,6 +79,11 @@ export default function App() {
           name="SavedMessages"
           component={SavedMessagesScreen}
           options={{ headerTitle: "Saved Messages" }}
+        />
+        <Stack.Screen
+          name="History"
+          component={HistoryScreen}
+          options={{ headerTitle: "Playback History" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
